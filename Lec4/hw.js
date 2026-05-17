@@ -94,7 +94,7 @@ for (let i = 0; i < phones.length; i++) {
   }
 }
 
-console.log(cheapestPhone.model);
+console.log(cheapestPhone.model, "- cheapest model");
 console.log("---------------------------");
 
 // 7)დაბეჭდე 300- გვერდიანზე მეტი
@@ -105,6 +105,7 @@ const books = [
   { title: "Animal Farm", pages: 250 },
 ];
 
+console.log("more than 300 pages:");
 for (let i = 0; i < books.length; i++) {
   if (books[i].pages > 300) {
     console.log(books[i].title);
@@ -121,8 +122,14 @@ const mobilePhones = [
   { model: "Pixel 8", price: 800 },
 ];
 
-for (let i = 0; i < books.length; i++) {
-  if (books[i].pages > 300) {
-    console.log(books[i].title);
-  }
+mobilePhones.sort((a, b) => a.price - b.price);
+
+console.log(mobilePhones);
+
+let sum = 0;
+
+for (let i = 0; i < mobilePhones.length; i++) {
+  sum += mobilePhones[i].price;
 }
+
+console.log(sum, "sum");
