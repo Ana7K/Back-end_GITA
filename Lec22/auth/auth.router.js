@@ -1,19 +1,25 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user.model");
+const User = require("../models/users.model");
 
-const router = express.Router();
+const authRouter = express.Router();
 
 // registration
-router.post("/register", async (req, res) => {
+authRouter.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json({ message: "user already exists" });
+      return res.status(409).json({ message: "user already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -24,16 +30,27 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(201).json(user);
+    res.status(201).json({
+      message: "User registered successfully",
+      user,
+    });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
   }
 });
 
 // login
-router.post("/login", async (req, res) => {
+authRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
 
     const user = await User.findOne({ email });
 
@@ -44,7 +61,7 @@ router.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "incorrect password" });
+      return res.status(401).json({ message: "incorrect password" });
     }
 
     const token = jwt.sign(
@@ -53,10 +70,13 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" },
     );
 
-    res.json({ token });
+    res.json({
+      message: "login successful",
+      token,
+    });
   } catch (error) {
     res.status(500).json(error);
   }
 });
 
-module.exports = router;
+module.exports = authRouter;
